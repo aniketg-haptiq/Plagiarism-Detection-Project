@@ -18,29 +18,36 @@ const openai = new OpenAI({
 });
 
 // Function to fetch multiple articles using NewsAPI with filters
-const fetchArticles = async (filters) => {
-  const { query, sources, from, to, language, sortBy } = filters;
-  const url = `https://newsapi.org/v2/everything?q=${query}&sources=${sources}&from=${from}&to=${to}&language=${language}&sortBy=${sortBy}&pageSize=10&apiKey=${NEWSAPI_KEY}`;
+app.post("/fetch-articles", async (req, res) => {
+  const { query, sources } = req.body;
+
+  if (!query || !sources) {
+    return res.status(400).json({ error: "Query and sources are required." });
+  }
 
   try {
-    console.log("Fetching articles with URL:", url); // Log the request URL
+    // Construct URL with only available parameters
+    let url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
+      query
+    )}&sources=${encodeURIComponent(
+      sources
+    )}&pageSize=10&apiKey=${NEWSAPI_KEY}`;
+
+    console.log("Fetching articles with URL:", url);
+
     const response = await axios.get(url);
-    console.log("NewsAPI response data:", response.data.articles); // Log articles
-    return response.data.articles; // Return the list of articles
+    const articles = response.data.articles || [];
+    console.log(articles);
+
+    res.json({ articles });
   } catch (error) {
-    console.error(
-      "Error fetching news articles:",
-      error.response?.data || error.message
-    );
-    throw new Error("Failed to fetch articles.");
+    console.error("Error fetching articles:", error.message);
+    res.status(500).json({ error: "Failed to fetch articles." });
   }
-};
+});
 
 // Function to compare content similarity using GPT-4o-mini
-const compareContentSimilarity = async (
-  inputContent,
-  fetchedArticleContent
-) => {
+const compareContentSimilarity = async (inputContent, allArticlesContent) => {
   try {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -57,7 +64,7 @@ const compareContentSimilarity = async (
             ${inputContent}
 
             Text 2:
-            ${fetchedArticleContent}
+            ${allArticlesContent}
 
             Please provide the similarity percentage and highlight the matched sections in Text 1 only.
           `,
@@ -91,10 +98,7 @@ const compareContentSimilarity = async (
 
       const regex = new RegExp(`(${escapedHighlightedText})`, "gi");
 
-      finalContent = inputContent.replace(
-        regex,
-        (match) => `<mark>${match}</mark>`
-      );
+      finalContent = inputContent.replace(regex, (match) => `${match}`);
     }
 
     return {
@@ -108,24 +112,7 @@ const compareContentSimilarity = async (
   }
 };
 
-// Endpoint to fetch articles based on filters
-app.post("/fetch-articles", async (req, res) => {
-  const filters = req.body;
-
-  try {
-    const articles = await fetchArticles(filters);
-    if (articles.length === 0) {
-      return res.status(404).json({ message: "No articles found." });
-    }
-
-    res.json({ articles });
-  } catch (error) {
-    console.error("Error fetching articles:", error.message);
-    res.status(500).json({ error: "Failed to fetch articles." });
-  }
-});
-
-// Endpoint to check plagiarism for a selected article
+// Endpoint to check plagiarism for a single article
 app.post("/check-plagiarism", async (req, res) => {
   const { targetContent, articleContent } = req.body;
 
@@ -149,6 +136,38 @@ app.post("/check-plagiarism", async (req, res) => {
     res
       .status(500)
       .json({ error: "An error occurred during the plagiarism check." });
+  }
+});
+
+// Endpoint to check plagiarism for all articles (grouped content)
+app.post("/check-plagiarism-all", async (req, res) => {
+  const { targetContent, articles } = req.body;
+
+  if (!targetContent || !Array.isArray(articles)) {
+    return res.status(400).json({
+      error: "Target content and articles array are required.",
+    });
+  }
+
+  try {
+    // Grouping all articles' content into one string
+    const allArticlesContent = articles
+      .map((article) => article.content)
+      .join("\n"); // Joining articles with a newline
+
+    const { similarityPercentage, matched_text, highlightedTextFromIp } =
+      await compareContentSimilarity(targetContent, allArticlesContent);
+
+    return res.json({
+      similarityPercentage,
+      matched_text,
+      highlightedTextFromIp,
+    });
+  } catch (error) {
+    console.error("Error during batch plagiarism check:", error.message);
+    res.status(500).json({
+      error: "An error occurred during the batch plagiarism check.",
+    });
   }
 });
 
