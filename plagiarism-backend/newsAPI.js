@@ -4,9 +4,9 @@ const { OpenAI } = require("openai");
 const app = express();
 
 const cors = require("cors");
-app.use(cors({ origin: "http://localhost:3001" })); // Replace with the actual frontend URL
+app.use(cors({ origin: "http://localhost:3001" }));
 
-app.use(express.json()); // Parse JSON requests
+app.use(express.json());
 
 // Use environment variables for sensitive keys
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -26,7 +26,6 @@ app.post("/fetch-articles", async (req, res) => {
   }
 
   try {
-    // Construct URL with only available parameters
     let url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(
       query
     )}&sources=${encodeURIComponent(
@@ -73,14 +72,11 @@ const compareContentSimilarity = async (inputContent, allArticlesContent) => {
     });
 
     const similarityResponse = response.choices[0].message.content;
-    console.log("Raw Similarity Response:", similarityResponse); // Log to inspect the format
-
     const similarityPercentageMatch = similarityResponse.match(
-      /similarity percentage\s*[:=]?\s*(\d+(\.\d+)?)/i
+      /Similarity Percentage: \s*[:=]?\s*(\d+(\.\d+)?)/i
     );
-
     const matchedText1 = similarityResponse.match(
-      /matched sections from Text 1:\s*[:=]?\s*([\s\S]+?)(?=\n|$)/i
+      /Matched sections from Text 1:\s*[:=]?\s*([\s\S]+?)(?=\n|$)/i
     );
 
     const similarityPercentage = similarityPercentageMatch
@@ -91,13 +87,7 @@ const compareContentSimilarity = async (inputContent, allArticlesContent) => {
 
     let finalContent = inputContent;
     if (highlightedText1) {
-      const escapeRegExp = (string) =>
-        string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-      const escapedHighlightedText = escapeRegExp(highlightedText1);
-
-      const regex = new RegExp(`(${escapedHighlightedText})`, "gi");
-
+      const regex = new RegExp(`(${highlightedText1})`, "gi");
       finalContent = inputContent.replace(regex, (match) => `${match}`);
     }
 
@@ -107,39 +97,16 @@ const compareContentSimilarity = async (inputContent, allArticlesContent) => {
       highlightedTextFromIp: finalContent,
     };
   } catch (error) {
+    if (error.status === 429) {
+      console.log(error);
+
+      throw new Error("RateLimitError");
+    }
     console.error("Error comparing contents:", error);
     throw new Error("Failed to compare contents.");
   }
 };
 
-// Endpoint to check plagiarism for a single article
-app.post("/check-plagiarism", async (req, res) => {
-  const { targetContent, articleContent } = req.body;
-
-  try {
-    if (!targetContent || !articleContent) {
-      return res
-        .status(400)
-        .json({ error: "Target content and article content are required." });
-    }
-
-    const { similarityPercentage, matched_text, highlightedTextFromIp } =
-      await compareContentSimilarity(targetContent, articleContent);
-
-    return res.json({
-      similarityPercentage,
-      matched_text,
-      highlightedTextFromIp,
-    });
-  } catch (error) {
-    console.error("Error during plagiarism check:", error.message);
-    res
-      .status(500)
-      .json({ error: "An error occurred during the plagiarism check." });
-  }
-});
-
-// Endpoint to check plagiarism for all articles (grouped content)
 app.post("/check-plagiarism-all", async (req, res) => {
   const { targetContent, articles } = req.body;
 
@@ -150,10 +117,9 @@ app.post("/check-plagiarism-all", async (req, res) => {
   }
 
   try {
-    // Grouping all articles' content into one string
     const allArticlesContent = articles
       .map((article) => article.content)
-      .join("\n"); // Joining articles with a newline
+      .join("\n");
 
     const { similarityPercentage, matched_text, highlightedTextFromIp } =
       await compareContentSimilarity(targetContent, allArticlesContent);
@@ -164,14 +130,68 @@ app.post("/check-plagiarism-all", async (req, res) => {
       highlightedTextFromIp,
     });
   } catch (error) {
-    console.error("Error during batch plagiarism check:", error.message);
+    if (error.message === "RateLimitError") {
+      console.log(error);
+      return res.status(429).json({
+        error: "Rate limit exceeded. Please try again later.",
+      });
+    }
     res.status(500).json({
       error: "An error occurred during the batch plagiarism check.",
     });
   }
 });
 
-// Start the server
+// Function to paraphrase content using GPT-4
+const paraphraseContent = async (inputText) => {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a paraphrasing assistant. Rewrite the given text in different words while preserving the meaning.",
+        },
+        {
+          role: "user",
+          content: `Please paraphrase the following text:
+          ${inputText}`,
+        },
+      ],
+    });
+
+    const paraphrasedText = response.choices[0].message.content;
+    return paraphrasedText.trim();
+  } catch (error) {
+    console.error("Error paraphrasing content:", error);
+    throw new Error("Failed to paraphrase content.");
+  }
+};
+
+// Paraphrasing API Endpoint
+app.post("/paraphrase", async (req, res) => {
+  const { inputText } = req.body;
+
+  if (!inputText) {
+    return res.status(400).json({
+      error: "Input text is required for paraphrasing.",
+    });
+  }
+
+  try {
+    const paraphrasedText = await paraphraseContent(inputText);
+    return res.json({
+      paraphrasedText,
+    });
+  } catch (error) {
+    console.error("Error paraphrasing content:", error);
+    res.status(500).json({
+      error: "An error occurred during the paraphrasing process.",
+    });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

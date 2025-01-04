@@ -22,18 +22,14 @@ const Header = () => {
       <div className="flex flex-1 justify-end gap-8">
         <div className="flex items-center gap-9">
           <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Home</a>
-          <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Tools</a>
-          <a className="text-[#141414] text-sm font-medium leading-normal" href="#">API</a>
-          <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Pricing</a>
-          <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Help Center</a>
+          <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Contact</a>
+          <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Log In</a>
         </div>
         <div className="flex gap-2">
           <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-black text-neutral-50 text-sm font-bold leading-normal tracking-[0.015em]">
-            <span className="truncate">Sign In</span>
+            <span className="truncate">Explore More</span>
           </button>
-          <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-[#ededed] text-[#141414] text-sm font-bold leading-normal tracking-[0.015em]">
-            <span className="truncate">Get Started</span>
-          </button>
+         
         </div>
       </div>
     </header>

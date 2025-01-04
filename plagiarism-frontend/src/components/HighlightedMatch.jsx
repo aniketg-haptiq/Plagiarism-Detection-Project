@@ -38,9 +38,9 @@ const HighlightedMatch = ({ highlightedText, matchedText }) => {
           </p>
         </div>
         <div className="flex flex-col gap-3 p-4">
-          <div className="flex gap-6 justify-between">
+          {/* <div className="flex gap-6 justify-between">
             <p className="text-[#141414] text-base font-medium leading-normal">Highlighted Match:</p>
-          </div>
+          </div> */}
           <div className="rounded bg-[#dbdbdb] p-4">
             <div className="flex flex-col gap-3">
               <p className="text-neutral-500 text-sm font-normal leading-normal">
