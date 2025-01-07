@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
@@ -17,12 +18,16 @@ const Header = () => {
             </defs>
           </svg>
         </div>
-        <h2 className="text-[#141414] text-lg font-bold leading-tight tracking-[-0.015em]">Plagiarism Detection</h2>
+
+        {/* <div>
+          <img className='logo' src="" alt="logo" />
+        </div> */}
+        <h2 className="text-[#141414] text-lg font-bold leading-tight tracking-[-0.015em]">PlagGuard</h2>
       </div>
       <div className="flex flex-1 justify-end gap-8">
         <div className="flex items-center gap-9">
-          <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Home</a>
-          <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Contact</a>
+          <Link className="text-[#141414] text-sm font-medium leading-normal" to="/">Home</Link>
+          <Link className="text-[#141414] text-sm font-medium leading-normal" to="/contact">Contact</Link>
           <a className="text-[#141414] text-sm font-medium leading-normal" href="#">Log In</a>
         </div>
         <div className="flex gap-2">

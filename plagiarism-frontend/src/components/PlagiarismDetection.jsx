@@ -27,20 +27,20 @@ const PlagiarismDetection = ({ articles }) => {
         targetContent: inputText,
         articles: articles,
       });
-
+  
       const { similarityPercentage, matched_text, highlightedTextFromIp } = response.data;
-
+  
       navigate("/result", {
         state: {
           similarityPercentage,
           matchedText: matched_text,
           highlightedText: highlightedTextFromIp,
+          inputText, // Pass inputText here
         },
       });
     } catch (error) {
       if (error.response && error.response.status === 429) {
         console.log(error);
-        
         alert("Cannot proceed. Please try again later.");
       } else {
         console.error("Error checking plagiarism:", error);
@@ -50,7 +50,8 @@ const PlagiarismDetection = ({ articles }) => {
       setLoading(false);
     }
   };
-
+  
+  
   return (
     <div className="px-40 flex flex-1 justify-center py-5">
       <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
