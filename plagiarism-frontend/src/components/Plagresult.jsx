@@ -9,7 +9,7 @@ const Plagresult = ({ similarityPercentage }) => {
       <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
         <div className="flex flex-wrap justify-between gap-3 p-4">
           <p className="text-[#141414] text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">
-            huhh..Your Plagiarism Check Results Are Ready!
+            huhh..Your Plagiarism Results Are Ready!
           </p>
         </div>
 

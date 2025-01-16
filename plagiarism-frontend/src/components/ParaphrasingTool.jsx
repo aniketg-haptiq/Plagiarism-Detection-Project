@@ -6,11 +6,12 @@ const ParaphrasingTool = ({ inputText, isLoggedIn }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const navigate = useNavigate();
 
   const handleParaphrase = async () => {
     if (!isLoggedIn) {
-      navigate("/signin", { state: { from: "/result" } }); // Pass the current route
+      setShowSignInPrompt(true);
       return;
     }
 
@@ -23,10 +24,13 @@ const ParaphrasingTool = ({ inputText, isLoggedIn }) => {
     setLoading(true);
 
     try {
+      const token = localStorage.getItem("token"); // Retrieve token from localStorage
+
       const response = await fetch("http://localhost:3000/paraphrase", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include the token in the request
         },
         body: JSON.stringify({ inputText }),
       });
@@ -38,7 +42,7 @@ const ParaphrasingTool = ({ inputText, isLoggedIn }) => {
       const data = await response.json();
       setParaphrasedText(data.paraphrasedText);
     } catch (error) {
-      console.error("Error paraphrasing text:", error);
+      console.error("Error paraphrasing text:", error.message, error.stack);
       setError("An error occurred while paraphrasing. Please try again.");
     } finally {
       setLoading(false);
@@ -77,7 +81,7 @@ const ParaphrasingTool = ({ inputText, isLoggedIn }) => {
           <p className="text-red-600 text-sm font-medium px-4">{error}</p>
         )}
 
-        {!paraphrasedText && (
+        {!paraphrasedText && !showSignInPrompt && (
           <button
             onClick={handleParaphrase}
             className="w-40 h-10 bg-black text-white rounded-full font-bold text-sm hover:bg-gray-800 disabled:bg-gray-400"
@@ -85,6 +89,18 @@ const ParaphrasingTool = ({ inputText, isLoggedIn }) => {
           >
             {loading ? "Rewriting..." : "Rewrite"}
           </button>
+        )}
+
+        {showSignInPrompt && (
+          <div className="text-center p-4 bg-yellow-100 border border-yellow-400 rounded-lg mt-4">
+            <p className="text-red-500">You must be signed in to use the tool.</p>
+            <button
+              onClick={() => navigate("/signin")}
+              className="mt-2 bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600"
+            >
+              Sign In
+            </button>
+          </div>
         )}
 
         {paraphrasedText && (
@@ -108,4 +124,5 @@ const ParaphrasingTool = ({ inputText, isLoggedIn }) => {
     </div>
   );
 };
+
 export default ParaphrasingTool;

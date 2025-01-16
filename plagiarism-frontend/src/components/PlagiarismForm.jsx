@@ -8,8 +8,24 @@ const PlagiarismForm = () => {
   const [sources, setSources] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [searchHistory, setSearchHistory] = useState([]);
-  const [sourcesHistory, setSourcesHistory] = useState([]);
+  const [showQuerySuggestions, setShowQuerySuggestions] = useState(false);
+  const [showSourceSuggestions, setShowSourceSuggestions] = useState(false);
+
+  // Predefined suggestions
+  const articleTopics = [
+    "Climate Change",
+    "Agriculture",
+    "AI Development",
+    "Economic Growth",
+    "Space Exploration",
+  ];
+  const newsSources = [
+    "the-times-of-india",
+    "bbc-news",
+    "cnn",
+    "al-jazeera-english",
+    "reuters",
+  ];
 
   const handleSearch = async () => {
     if (!searchQuery || !sources) {
@@ -21,15 +37,6 @@ const PlagiarismForm = () => {
     setLoading(true);
 
     try {
-      // Save the search query and sources to history if not already present
-      if (!searchHistory.includes(searchQuery)) {
-        setSearchHistory((prev) => [...prev, searchQuery]);
-      }
-      if (!sourcesHistory.includes(sources)) {
-        setSourcesHistory((prev) => [...prev, sources]);
-      }
-
-      // Call backend to fetch articles
       const response = await axios.post("http://localhost:3000/fetch-articles", {
         query: searchQuery,
         sources: sources,
@@ -37,7 +44,6 @@ const PlagiarismForm = () => {
 
       const articles = response.data.articles;
       if (articles.length > 0) {
-        // Navigate to MainPage with fetched articles
         navigate("/main", { state: { articles, searchQuery } });
       } else {
         setError("No articles found for the given query and sources.");
@@ -48,6 +54,12 @@ const PlagiarismForm = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSuggestionClick = (setFunction, value) => {
+    setFunction(value);
+    setShowQuerySuggestions(false);
+    setShowSourceSuggestions(false);
   };
 
   return (
@@ -65,68 +77,88 @@ const PlagiarismForm = () => {
       )}
 
       {/* Search Query Input */}
-      <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-        <label className="flex flex-col min-w-40 flex-1">
+      <div className="relative max-w-[480px] px-4 py-3">
+        <label className="flex flex-col">
           <p className="text-[#141414] text-base font-medium leading-normal pb-2">
             Article Topic
           </p>
           <input
-            list="searchQuerySuggestions"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setShowQuerySuggestions(true)}
+            onBlur={() => setTimeout(() => setShowQuerySuggestions(false), 200)}
             placeholder="Enter the topic or keywords for the article"
-            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#141414] focus:outline-0 focus:ring-0 border border-[#dbdbdb] bg-neutral-50 focus:border-[#dbdbdb] h-14 placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal"
+            className="form-input flex w-full resize-none rounded-xl text-[#141414] focus:outline-0 focus:ring-0 border border-[#dbdbdb] bg-neutral-50 focus:border-[#dbdbdb] h-14 placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal"
           />
-          <datalist id="searchQuerySuggestions">
-            {searchHistory.map((query, index) => (
-              <option key={index} value={query} />
-            ))}
-          </datalist>
         </label>
+        {showQuerySuggestions && (
+          <ul className="absolute z-10 bg-neutral-50 border border-[#dbdbdb] rounded-xl w-full max-h-40 overflow-auto shadow-lg">
+            {articleTopics
+              .filter((topic) =>
+                topic.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((topic, index) => (
+                <li
+                  key={index}
+                  onClick={() => handleSuggestionClick(setSearchQuery, topic)}
+                  className="px-4 py-2 cursor-pointer hover:bg-neutral-100"
+                >
+                  {topic}
+                </li>
+              ))}
+          </ul>
+        )}
       </div>
 
       {/* Sources Input */}
-      <div className="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-        <label className="flex flex-col min-w-40 flex-1">
+      <div className="relative max-w-[480px] px-4 py-3">
+        <label className="flex flex-col">
           <p className="text-[#141414] text-base font-medium leading-normal pb-2">
             News Source
           </p>
           <input
-            list="sourcesSuggestions"
             value={sources}
             onChange={(e) => setSources(e.target.value)}
+            onFocus={() => setShowSourceSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSourceSuggestions(false), 200)}
             placeholder="Enter the name of a news source"
-            className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#141414] focus:outline-0 focus:ring-0 border border-[#dbdbdb] bg-neutral-50 focus:border-[#dbdbdb] h-14 placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal"
+            className="form-input flex w-full resize-none rounded-xl text-[#141414] focus:outline-0 focus:ring-0 border border-[#dbdbdb] bg-neutral-50 focus:border-[#dbdbdb] h-14 placeholder:text-neutral-500 p-[15px] text-base font-normal leading-normal"
           />
-          <datalist id="sourcesSuggestions">
-            {sourcesHistory.map((source, index) => (
-              <option key={index} value={source} />
-            ))}
-          </datalist>
         </label>
+        {showSourceSuggestions && (
+          <ul className="absolute z-10 bg-neutral-50 border border-[#dbdbdb] rounded-xl w-full max-h-40 overflow-auto shadow-lg">
+            {newsSources
+              .filter((source) =>
+                source.toLowerCase().includes(sources.toLowerCase())
+              )
+              .map((source, index) => (
+                <li
+                  key={index}
+                  onClick={() => handleSuggestionClick(setSources, source)}
+                  className="px-4 py-2 cursor-pointer hover:bg-neutral-100"
+                >
+                  {source}
+                </li>
+              ))}
+          </ul>
+        )}
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-stretch">
-        <div className="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-end">
-          <button
-            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-[#ededed] text-[#141414] text-sm font-bold leading-normal tracking-[0.015em]"
-            onClick={() => navigate("/")}
-          >
-            <span className="truncate">Cancel</span>
-          </button>
-          <button
-            onClick={handleSearch}
-            className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-black text-neutral-50 text-sm font-bold leading-normal tracking-[0.015em]"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="truncate">Searching...</span>
-            ) : (
-              <span className="truncate">Search</span>
-            )}
-          </button>
-        </div>
+      <div className="flex justify-stretch px-4 py-3">
+        <button
+          className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-full h-10 px-4 bg-[#ededed] text-[#141414] text-sm font-bold"
+          onClick={() => navigate("/")}
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleSearch}
+          className="flex min-w-[84px] cursor-pointer items-center justify-center rounded-full h-10 px-4 bg-black text-neutral-50 text-sm font-bold ml-3"
+          disabled={loading}
+        >
+          {loading ? "Searching..." : "Search"}
+        </button>
       </div>
     </div>
   );

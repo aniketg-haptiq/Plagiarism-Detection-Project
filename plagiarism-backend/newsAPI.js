@@ -21,7 +21,7 @@ const MONGODB_URI =
 
 // Set up OpenAI client
 const openai = new OpenAI({
-  apiKey: OPENAI_API_KEY,
+  apiKey: OPENAI_API_KEY.trim(),
 });
 
 // MongoDB connection with retry logic
@@ -200,7 +200,11 @@ const compareContentSimilarity = async (inputContent, allArticlesContent) => {
       highlightedTextFromIp: finalContent,
     };
   } catch (error) {
-    console.error("Error comparing contents:", error);
+    console.error("Error comparing contents:", {
+      message: error.message,
+      response: error.response?.data,
+      stack: error.stack,
+    });
     throw new Error("Failed to compare contents.");
   }
 };
@@ -234,7 +238,7 @@ app.post("/check-plagiarism-all", async (req, res) => {
   }
 });
 
-// Paraphrase content using GPT-4o-mini
+
 const paraphraseContent = async (inputText) => {
   try {
     const response = await openai.chat.completions.create({
@@ -265,6 +269,8 @@ app.post("/paraphrase", authenticate, async (req, res) => {
   const { inputText } = req.body;
 
   if (!inputText) {
+    console.log("no input text");
+
     return res.status(400).json({
       error: "Input text is required for paraphrasing.",
     });
