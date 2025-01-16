@@ -28,11 +28,9 @@ const SignIn = () => {
       const data = await response.json();
       const { token } = data;
 
-      // Save token in localStorage and context
       localStorage.setItem("token", token);
       signIn({ email, token });
 
-      // Display success message
       setSuccess(true);
     } catch (err) {
       setError(err.message);
@@ -45,12 +43,7 @@ const SignIn = () => {
         <div className="bg-white p-8 shadow-lg text-center">
           <h2 className="text-2xl font-bold mb-4">Sign In Successful!</h2>
           <p className="mb-6">You have successfully signed in.</p>
-          {/* <button
-            onClick={() => navigate(-1)} // Go back to the previous page
-            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-          >
-            Go Back
-          </button> */}
+          
         </div>
       </div>
     );

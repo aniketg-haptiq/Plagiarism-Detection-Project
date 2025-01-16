@@ -14,12 +14,12 @@ export const AuthProvider = ({ children }) => {
 
   const signIn = (userData) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData)); // Save user in localStorage
+    localStorage.setItem("user", JSON.stringify(userData)); 
   };
 
   const signOut = () => {
     setUser(null);
-    localStorage.removeItem("user"); // Remove user from localStorage
+    localStorage.removeItem("user"); 
   };
 
   return (

@@ -1,21 +1,16 @@
 import React from "react";
 
 const HighlightedMatch = ({ highlightedText, matchedText }) => {
-  // Function to highlight the matched text
   const highlightMatchedText = (highlightedText, matchedText) => {
-    // If no matchedText or highlightedText, return the highlightedText as is
     if (!highlightedText || !matchedText) return highlightedText;
 
-    // Find the index of the matchedText in the highlightedText
     const index = highlightedText.indexOf(matchedText);
 
-    // If matchedText is found, split the highlightedText into three parts: before, match, after
     if (index !== -1) {
       const beforeMatch = highlightedText.slice(0, index);
       const match = highlightedText.slice(index, index + matchedText.length);
       const afterMatch = highlightedText.slice(index + matchedText.length);
 
-      // Return the JSX with the matchedText wrapped in a <mark> for highlighting
 
       return (
         <>
@@ -26,7 +21,6 @@ const HighlightedMatch = ({ highlightedText, matchedText }) => {
       );
     }
 
-    // If matchedText is not found, return the highlightedText as is
     return highlightedText;
   };
 

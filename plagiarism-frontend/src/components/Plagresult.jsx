@@ -13,7 +13,6 @@ const Plagresult = ({ similarityPercentage }) => {
           </p>
         </div>
 
-        {/* Display the similarity percentage or congratulatory message if 0% */}
         {similarityPercentage === 0 ? (
           <h2 className="text-[#141414] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">
             Congratulations! No Plagiarism Found.

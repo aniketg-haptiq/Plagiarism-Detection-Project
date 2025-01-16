@@ -11,7 +11,6 @@ const PlagiarismForm = () => {
   const [showQuerySuggestions, setShowQuerySuggestions] = useState(false);
   const [showSourceSuggestions, setShowSourceSuggestions] = useState(false);
 
-  // Predefined suggestions
   const articleTopics = [
     "Climate Change",
     "Agriculture",

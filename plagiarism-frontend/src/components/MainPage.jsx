@@ -7,7 +7,7 @@ import Articles from "./Articles";
 const MainPage = () => {
   const location = useLocation();
   const { state } = location;
-  const articles = state?.articles || []; // Retrieve articles from navigation state
+  const articles = state?.articles || []; 
 
   return (
     <div className="relative flex size-full min-h-screen flex-col bg-neutral-50 group/design-root overflow-x-hidden">

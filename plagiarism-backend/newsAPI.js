@@ -12,30 +12,26 @@ const app = express();
 app.use(cors({ origin: "http://localhost:3001" }));
 app.use(express.json());
 
-// Use environment variables for sensitive keys
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const NEWSAPI_KEY = process.env.NEWSAPI_KEY;
-const JWT_SECRET = process.env.JWT_SECRET; // For simplicity
+const JWT_SECRET = process.env.JWT_SECRET;
 const MONGODB_URI =
   process.env.MONGODB_URI || "mongodb://localhost:27017/authDB";
 
-// Set up OpenAI client
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY.trim(),
 });
 
-// MongoDB connection with retry logic
 const connectToMongoDB = async () => {
   try {
     await mongoose.connect(MONGODB_URI);
     console.log("MongoDB connected successfully.");
   } catch (error) {
     console.error("Error connecting to MongoDB:", error.message);
-    // setTimeout(connectToMongoDB, 5000); // Retry after 5 seconds if connection fails
   }
 };
 
-connectToMongoDB(); // Initiate the connection
+connectToMongoDB();
 
 // User schema
 const userSchema = new mongoose.Schema({
@@ -111,7 +107,6 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// Fetch multiple articles using NewsAPI
 app.post("/fetch-articles", async (req, res) => {
   const { query, sources } = req.body;
 
@@ -130,7 +125,6 @@ app.post("/fetch-articles", async (req, res) => {
 
     const response = await axios.get(url);
 
-    // Log the API response
     console.log("NewsAPI Response:", response.data);
 
     const articles = response.data.articles || [];
@@ -138,7 +132,6 @@ app.post("/fetch-articles", async (req, res) => {
   } catch (error) {
     console.error("Error fetching articles:", error.message);
 
-    // Log more detailed error information
     if (error.response) {
       console.error("Error Response Data:", error.response.data);
       console.error("Error Response Status:", error.response.status);
@@ -148,7 +141,6 @@ app.post("/fetch-articles", async (req, res) => {
   }
 });
 
-// Compare content similarity using GPT-4o-mini
 const compareContentSimilarity = async (inputContent, allArticlesContent) => {
   try {
     const response = await openai.chat.completions.create({
@@ -237,7 +229,6 @@ app.post("/check-plagiarism-all", async (req, res) => {
     });
   }
 });
-
 
 const paraphraseContent = async (inputText) => {
   try {

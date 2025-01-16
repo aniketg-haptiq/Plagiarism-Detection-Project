@@ -39,7 +39,7 @@ const SignUp = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <form
-        className="bg-white p-8 shadow-lg w-full max-w-md" // Matches the width of SignIn form
+        className="bg-white p-8 shadow-lg w-full max-w-md" 
         onSubmit={handleSignUp}
       >
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>

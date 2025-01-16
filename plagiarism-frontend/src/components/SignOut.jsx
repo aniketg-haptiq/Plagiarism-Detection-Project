@@ -1,14 +1,14 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../AuthContext"; // Import AuthContext
+import { AuthContext } from "../AuthContext"; 
 
 const SignOut = () => {
-  const { signOut } = useContext(AuthContext); // Get signOut function from context
+  const { signOut } = useContext(AuthContext); 
   const navigate = useNavigate();
 
   const handleSignOut = () => {
-    signOut(); // Call the signOut function to clear the login status
-    navigate("/"); // Redirect to the home page after sign-out
+    signOut(); 
+    navigate("/"); 
   };
 
   return (

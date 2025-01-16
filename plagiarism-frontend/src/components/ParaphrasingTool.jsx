@@ -24,13 +24,13 @@ const ParaphrasingTool = ({ inputText, isLoggedIn }) => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token"); // Retrieve token from localStorage
+      const token = localStorage.getItem("token"); 
 
       const response = await fetch("http://localhost:3000/paraphrase", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include the token in the request
+          Authorization: `Bearer ${token}`, 
         },
         body: JSON.stringify({ inputText }),
       });

@@ -5,13 +5,13 @@ import { useNavigate } from "react-router-dom";
 const PlagiarismDetection = ({ articles }) => {
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [wordCount, setWordCount] = useState(0); // State for word count
+  const [wordCount, setWordCount] = useState(0); 
   const navigate = useNavigate();
-  const maxWords = 1000; // Maximum word limit
+  const maxWords = 1000; 
 
   const handleInputChange = (e) => {
     const text = e.target.value;
-    const words = text.trim().split(/\s+/); // Split text into words by whitespace
+    const words = text.trim().split(/\s+/); 
     const wordCount = text.trim() === "" ? 0 : words.length;
 
     if (wordCount <= maxWords) {
@@ -82,7 +82,7 @@ const PlagiarismDetection = ({ articles }) => {
           <button
             onClick={handleCheckPlagiarism}
             className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 flex-1 bg-black text-neutral-50 text-base font-bold leading-normal tracking-[0.015em]"
-            disabled={loading || wordCount === 0 || wordCount > maxWords} // Disable button if loading, no text, or limit exceeded
+            disabled={loading || wordCount === 0 || wordCount > maxWords} 
           >
             {loading ? (
               <span className="truncate">Checking...</span>

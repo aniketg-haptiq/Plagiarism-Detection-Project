@@ -14,12 +14,10 @@ const Result = ({ isLoggedIn }) => {
       <div className="layout-container flex h-full grow flex-col gap-6">
         <Plagresult similarityPercentage={similarityPercentage} />
         
-        {/* Conditionally render HighlightedMatch if similarityPercentage is greater than 0 */}
         {similarityPercentage > 0 && (
           <HighlightedMatch highlightedText={highlightedText} matchedText={matchedText} />
         )}
 
-        {/* Only show ParaphrasingTool if similarityPercentage is greater than 50 */}
         {similarityPercentage > 50 && (
           <ParaphrasingTool inputText={inputText} isLoggedIn={isLoggedIn}/>
         )}
