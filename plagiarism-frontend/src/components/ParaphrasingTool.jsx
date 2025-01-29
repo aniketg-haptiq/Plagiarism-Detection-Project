@@ -26,7 +26,7 @@ const ParaphrasingTool = ({ inputText, isLoggedIn }) => {
     try {
       const token = localStorage.getItem("token"); 
 
-      const response = await fetch("http://localhost:3000/paraphrase", {
+      const response = await fetch("http://localhost:3000/api/paraphrase/paraphrase-text", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

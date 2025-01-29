@@ -167,6 +167,8 @@ const compareContentSimilarity = async (inputContent, allArticlesContent) => {
     });
 
     const similarityResponse = response.choices[0].message.content;
+    console.log(similarityResponse);
+
     const similarityPercentageMatch = similarityResponse.match(
       /Similarity Percentage: \s*[:=]?\s*(\d+(\.\d+)?)/i
     );
