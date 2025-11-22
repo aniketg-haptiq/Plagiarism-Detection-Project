@@ -36,7 +36,7 @@ const PlagiarismForm = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:3000/api/articles/fetch-articles", {
+      const response = await axios.post("http://localhost:5000/api/articles/fetch-articles", {
         query: searchQuery,
         sources: sources,
       });
